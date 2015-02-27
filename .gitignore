@@ -1,5 +1,6 @@
 .buildpath
 log/*
 public/conf-local.inc
+public/rwb/info.php
 .project
 .settings
