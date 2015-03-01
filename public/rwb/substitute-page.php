@@ -1,54 +1,74 @@
 <!DOCTYPE html>
-<html
-  manifest="<?php print $rwb_path_relative_to_request_path ?>/rwb.appcache?hash=<?php print RWB_APPCACHE_HASH ?>">
+<html manifest="<?php print $rwb_path_relative_to_request_path ?>/rwb.appcache">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-  content="width=device-width, initial-scale=1, user-scalable=yes">
-<title><?php print self::$website_title ?></title>
-<?php print '<style>'; require 'substitute-page.css'; print '</style>'; ?>
-<script>
-if (top != self && window.name == '<?php print self::IFRAME_WINDOW_NAME ?>') {
-  console.log('top != self');
-  top.location = window.location;
-}
-</script>
+<meta charset="<?php echo $env['upstream_charset']; ?>" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+<title><?php print iconv('utf-8',$env['upstream_charset'],self::$website_title) ?></title>
 </head>
 <body>
-  <div>
-    <p><?php print RedirectWhenBlockedFull::$translatable_text['loading'] ?></p>
-    <h1><?php print self::$website_title ?></h1>
-    <p><?php print RedirectWhenBlockedFull::$translatable_text['if_website_fails'] ?></p>
-    <?php if(self::$alt_url_collections) { ?>
-    <ul>
-      <?php foreach(self::$alt_url_collections as $alt_url_collection) { ?>
-      <li><a href="<?php print $alt_url_collection; ?>" target="_blank"><?php print $alt_url_collection; ?></a></li>
+  <div id="rwbTip_JUST_MAGIC_BIT">
+    <style>
+      #rwbTip_JUST_MAGIC_BIT div * {
+        margin:0;
+        padding:0;
+      }
+      #rwbTip_JUST_MAGIC_BIT p {
+        text-align: center;
+      }
+      #rwbTip_JUST_MAGIC_BIT ul {
+        border: thin solid #ddd;
+        margin: auto;
+        padding: 5px;
+        width: 300px;
+      }
+      #rwbTip_JUST_MAGIC_BIT li {
+        margin-left: 50px;
+      }
+      #rwbTip_JUST_MAGIC_BIT h1 {
+        color: #aaa;
+        text-align: center;
+      }
+      #rwbTip_JUST_MAGIC_BIT.top {
+        color: #222;
+        padding: 5px;
+        text-align: center;
+        background:white;
+      }
+      #rwbTip_JUST_MAGIC_BIT.top div * {
+        display:inline;
+        font-size:12px;
+      }
+      #rwbTip_JUST_MAGIC_BIT.top div .title {
+        display:none;
+      }
+      #rwbTip_JUST_MAGIC_BIT.top div ul {
+        border:none;
+        padding:0;
+      }
+      #rwbTip_JUST_MAGIC_BIT.top div ul li:first-child::after {
+        content:",";
+      }
+      #rwbTip_JUST_MAGIC_BIT.top div ul li {
+        margin:0;
+      }
+    </style>
+    <div>
+      <p class="title"><?php print RedirectWhenBlockedFull::$translatable_text['loading'] ?></p>
+      <h1 class="title"><?php print iconv('utf-8',$env['upstream_charset'],self::$website_title) ?></h1>
+      <p><?php print RedirectWhenBlockedFull::$translatable_text['if_website_fails'] ?></p>
+      <?php if(self::$alt_url_collections) { ?>
+      <ul>
+        <?php foreach(self::$alt_url_collections as $alt_url_collection) { ?>
+        <li><a href="<?php print $alt_url_collection; ?>" target="_blank"><?php print $alt_url_collection; ?></a></li>
+        <?php } ?>
+      </ul>
       <?php } ?>
-    </ul>
-    <?php } ?>
+    </div>
   </div>
-  <iframe frameBorder="0" scrolling="no" verticalscrolling="no"
-    name="<?php print self::IFRAME_WINDOW_NAME ?>" seamless="seamless"
-    height="600px" src="<?php print htmlspecialchars($iframe_src) ?>"></iframe>
-  <script
-    src="<?php print $rwb_path_relative_to_request_path ?>/jquery-1.11.1.min.js"></script>
   <script>
-  var get_param_name = '<?php print self::QUERY_STRING_PARAM_NAME ?>';
-  var jsonp_callback_basename = '<?php print self::JSONP_CALLBACK_BASENAME ?>';
-  var output_type_iframe = '<?php print self::OUTPUT_TYPE_IFRAME ?>';
-  var output_type_jsonp = '<?php print self::OUTPUT_TYPE_JSONP ?>';
-  if (top != self) {
-    var new_location = window.location.href;
-    new_location += new_location.indexOf('?') == -1 ? '?' : '&';
-    new_location += get_param_name + '=' + output_type_iframe;
-    console.log('changing ' + window.location.href + ' to ' + new_location);
-    window.location = new_location;
-  } else {
-      window.name = '<?php print self::TOP_WINDOW_NAME ?>';
-      var alt_base_urls = <?php print json_encode(self::$alt_base_urls) ?>;
-      <?php print str_replace("\n", "\n\t\t", file_get_contents(__DIR__ . '/substitute-page.js')) . "\n"; ?>
-  }
+    var _RWB_ENV_=<?php echo json_encode($env);?>;
   </script>
+  <script src="<?php echo $rwb_path_relative_to_request_path.'/main.js'; ?>"></script>
   <?php print self::$html_body_appendix ?>
 </body>
 </html>
