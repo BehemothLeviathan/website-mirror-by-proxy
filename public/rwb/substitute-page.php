@@ -2,6 +2,7 @@
 <html manifest="<?php print $rwb_path_relative_to_request_path ?>/rwb.appcache">
 <head>
 <meta charset="<?php echo $env['upstream_charset']; ?>" />
+<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $env['upstream_charset']; ?>" />
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
 <title><?php print iconv('utf-8',$env['upstream_charset'],self::$website_title) ?></title>
 </head>
@@ -19,7 +20,7 @@
         border: thin solid #ddd;
         margin: auto;
         padding: 5px;
-        width: 300px;
+        width: 400px;
       }
       #rwbTip_JUST_MAGIC_BIT li {
         margin-left: 50px;
@@ -45,11 +46,11 @@
         border:none;
         padding:0;
       }
-      #rwbTip_JUST_MAGIC_BIT.top div ul li:first-child::after {
-        content:",";
-      }
       #rwbTip_JUST_MAGIC_BIT.top div ul li {
         margin:0;
+      }
+      #rwbTip_JUST_MAGIC_BIT.top div ul li:first-child::after {
+        content:",";
       }
     </style>
     <div>

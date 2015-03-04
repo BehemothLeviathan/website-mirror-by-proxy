@@ -1,8 +1,16 @@
 (function (G) {
-
 if (top!=self) {
   top.location=self.location;
   return;
+}
+
+if (!G.console) {
+  G.console={
+    log:function () {
+      //var msgs=[].slice.apply(arguments).join("\n");
+      //alert(msgs);
+    }
+  };
 }
 
 var env=G._RWB_ENV_,tip=document.getElementById("rwbTip_JUST_MAGIC_BIT"),
@@ -24,11 +32,40 @@ function startsWith(s,prefix){
 }
 
 function requestPage() {
-  var src=env.request_src;
-  console.log(src);
-  request(src,function (xhr) {//succ
-    console.log("succ load:",xhr.readyState,xhr.status,src);
-    var html=xhr.responseText;
+  var cb=env.jsonp_callback_basename+(+new Date);
+  var src=env.request_src+'&callback='+cb;
+  var script=document.createElement('script');
+  var tid=setTimeout(onTimeout,10000); // default time is 10000ms,viz. 10s
+  G[cb]=function (result) {
+    clearTimeout(tid);
+    console.log("OK:",src);
+    script.parentNode.removeChild(script);
+    setTimeout(function () { // IE8 need to take a breath
+      var html=result.html;
+      html=html.replace(/(<body[^>]*>)/i,"$1"+tip.outerHTML.replace(/^\s*<div/i,'<div class="top"'));
+      document.open();
+      document.charset=env.upstream_charset; // only for IE8
+      document.write(html); //TODO:try write by lines test if its visual experience looks faster
+      document.close();
+    },0);
+  };
+
+
+  script.charset='utf-8';
+  script.src=src;
+  script.onerror=function () {
+    console.log("JSONP Error!");
+  };
+  document.getElementsByTagName('head')[0].appendChild(script);
+  function onTimeout() {
+    G[cb]=noop;
+    warn("Page load timeout!");
+    warn("Now trying other mirrors... Please wait.");
+    testOtherMirrors();
+  }
+
+
+  /*
     var charset;
     var ct=xhr.getResponseHeader("Content-Type");
     if (ct) {
@@ -40,19 +77,12 @@ function requestPage() {
       charset=charset && charset[1];
     }
 
-    html=html.replace(/(<body[^>]*>)/i,"$1"+tip.outerHTML.replace(/^<div/i,'<div class="top"'));
-    document.open();
-
     if (charset) {
       console.log("Charset:"+charset);
       document.characterSet=document.charset=charset; //firefox didn't buy this
     }
 
-    document.write(html);
-    document.close();
-  },function () {//fail
-    warn("Page load fail!");
-  });
+  */
 }
 
 function chooseMirror(url,pingQueue) {
@@ -67,7 +97,9 @@ function noAvailableMirror() {
   console.log('%cEmergency!','color:red');
   warn("No available mirror!");
   if (env.alt_url_collections[0]) {
-    //location.href=env.alt_url_collections[0];
+    if (confirm("Try to find another mirror URL?")) {
+      location.href=env.alt_url_collections[0];
+    }
   }
 }
 
@@ -79,7 +111,6 @@ function warn(msg) {
 function request(url,succ,fail) {
   var xhr=new XMLHttpRequest(),tid;
   xhr.open("GET",url,true);
-  xhr.overrideMimeType('text/html; charset='+env.upstream_charset);
   xhr.timeout=10000; // 10s
   xhr.onreadystatechange=function () {
     if (xhr.readyState===4 && xhr.status>=200 && xhr.status <400) {

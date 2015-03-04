@@ -83,7 +83,7 @@ class RedirectWhenBlockedFull
     public static function getBaseTag()
     {
         return '<base href="' . RedirectWhenBlockedFull::getBaseUrl(true) .
-             '" target="' . self::TOP_WINDOW_NAME . '">';
+             '" />';
     }
 
     // Guess the current base URL.
@@ -220,7 +220,7 @@ class RedirectWhenBlockedFull
             }
 
             $request_src .= self::QUERY_STRING_PARAM_NAME . '=' .
-                 self::OUTPUT_TYPE_IFRAME;
+                 self::OUTPUT_TYPE_JSONP;
 
             $request_path_depth = count(
                 explode('/', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)));
