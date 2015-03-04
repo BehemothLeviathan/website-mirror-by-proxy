@@ -2,11 +2,10 @@
 require_once('info.php');
 function rwb_appcache_comment()
 {
-    header('Cache-Control: no-cache, no-store, must-revalidate');
+    # If set Cache-Control:no-cache,firefox will ignore appcache
+    header('Cache-Control: max-age=0');
     header('Access-Control-Allow-Origin: *'); # For JS to ping
     header('Content-type: text/cache-manifest');
-    header('Pragma: no-cache'); // HTTP 1.0.
-    header('Expires: 0'); // Proxies.
     $hash = rwb_appcache_get_hash();
     echo $hash;
 }
