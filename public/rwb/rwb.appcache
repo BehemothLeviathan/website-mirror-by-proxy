@@ -1,7 +1,6 @@
 CACHE MANIFEST
 # <?php require 'rwb.appcache.functions.inc'; rwb_appcache_comment(); ?>
 
-main.js
 
 NETWORK:
 *

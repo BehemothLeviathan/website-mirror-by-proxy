@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="<?php print $rwb_path_relative_to_request_path ?>/rwb.appcache">
+<html manifest="<?php print $rwb_path_relative_to_request_path ?>/rwb.appcache?hash=<?php echo $env['rwb_hash'] ?>">
 <head>
 <meta charset="<?php echo $env['upstream_charset']; ?>" />
 <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $env['upstream_charset']; ?>" />
@@ -69,7 +69,9 @@
   <script>
     var _RWB_ENV_=<?php echo json_encode($env);?>;
   </script>
-  <script src="<?php echo $rwb_path_relative_to_request_path.'/main.js'; ?>"></script>
+  <script>
+    <?php echo  file_get_contents(__DIR__ . '/main.js') ; ?>
+  </script>
   <?php print self::$html_body_appendix ?>
 </body>
 </html>

@@ -7,7 +7,11 @@ function rwb_appcache_comment()
     header('Access-Control-Allow-Origin: *'); # For JS to ping
     header('Content-type: text/cache-manifest');
     $hash = rwb_appcache_get_hash();
-    echo $hash;
+    if(!isset($_GET['hash']) || $_GET['hash'] != $hash) {
+        print round(time() / 100);
+    } else {
+        print $hash;
+    }
 }
 
 function rwb_appcache_get_hash() {

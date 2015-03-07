@@ -232,6 +232,7 @@ class RedirectWhenBlockedFull
             $env=array(
               'text'=> self::$translatable_text,
               'title'=> self::$website_title,
+              'rwb_hash'=> rwb_appcache_get_hash(),
               'alt_url_collections'=> self::$alt_url_collections,
               'alt_base_urls'=> self::$alt_base_urls,
               'request_src'=>$request_src,
