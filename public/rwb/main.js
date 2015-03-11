@@ -4,6 +4,8 @@ if (top!=self) {
   return;
 }
 
+var DEFAULT_TIMEOUT=30000; // default timeout is 30000ms,viz. 30s
+
 if (!G.console) {
   G.console={
     log:function () {
@@ -35,7 +37,7 @@ function requestPage() {
   var cb=env.jsonp_callback_basename+(+new Date);
   var src=env.request_src+'&callback='+cb;
   var script=document.createElement('script');
-  var tid=setTimeout(onTimeout,10000); // default time is 10000ms,viz. 10s
+  var tid=setTimeout(onTimeout,DEFAULT_TIMEOUT);
   G[cb]=function (result) {
     clearTimeout(tid);
     console.log("OK:",src);
@@ -45,8 +47,7 @@ function requestPage() {
       html=html.replace(/(<body[^>]*>)/i,"$1"+tip.outerHTML.replace(/^\s*<div/i,'<div class="top"'));
       document.open();
       document.charset=env.upstream_charset; // only for IE8
-      document.write(html); //TODO:try write by lines test if its visual experience looks faster
-      document.close();
+      document.write(html);
     },0);
   };
 
@@ -111,7 +112,7 @@ function warn(msg) {
 function request(url,succ,fail) {
   var xhr=new XMLHttpRequest(),tid;
   xhr.open("GET",url,true);
-  xhr.timeout=10000; // 10s
+  xhr.timeout=DEFAULT_TIMEOUT;
   xhr.onreadystatechange=function () {
     if (xhr.readyState===4 && xhr.status>=200 && xhr.status <400) {
       clean();
