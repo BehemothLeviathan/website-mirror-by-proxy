@@ -8,9 +8,15 @@ class Conf
 
     const OUTPUT_TYPE_APK_URLS = 11;
 
+    const OUTPUT_TYPE_APP_URLS = 13;
+
     const OUTPUT_TYPE_STATUS = 12;
 
     const OUTPUT_TYPE_APK = 'apk';
+
+    const OUTPUT_TYPE_APP_QR = 'app-qr.png';
+
+    const OUTPUT_TYPE_APP = 'app';
 
     public static $alt_base_urls_key;
     
@@ -18,6 +24,8 @@ class Conf
     public static $alt_base_urls_modified_ago_max = 86400;
 
     public static $apk_url;
+
+    public static $china_ip_for_dns_poisoning_test;
 
     public static $cookies_enabled = false;
 
@@ -47,14 +55,19 @@ class Conf
 
     public static $proxy_http_request_timeout = 30;
 
-    public static $china_ip_for_dns_poisoning_test;
+    public static $translatable_text = array(
+        'downloading' => 'Downloading {{APK}} ...',
+        'scan_or_click' => 'Scan or click on your Android device to download the app.',
+        'weixin' => 'To download {{APK}} click the top right button and select "Open in a browser"'
+    );
 
-    public static function addGoogleAnalyticsId($id) {
+    public static function addGoogleAnalyticsId($id)
+    {
         static $i;
-        if(!isset($i)) {
+        if (! isset($i)) {
             $i = 0;
         }
-        $i++;
+        $i ++;
         
         $name = 'wmbp' . $i;
         $ga_script = <<<EOF
@@ -75,7 +88,7 @@ EOF;
         // Appends to iframed content.
         self::appendToHtmlBody($ga_script);
     }
-    
+
     public static function appendToHtmlBody($str)
     {
         self::$html_body_appendix .= $str;

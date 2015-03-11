@@ -125,7 +125,9 @@ class ProxyHttpResponse
         // Unset some.
         $skip = array(
             'Connection',
-            'Transfer-Encoding'
+            'Content-Encoding',
+            'Transfer-Encoding',
+            'X-Original-Content-Encoding'
         );
         foreach ($skip as $s) {
             if (isset($headers[$s])) {

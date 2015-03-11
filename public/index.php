@@ -54,6 +54,20 @@ if (isset($_GET[RedirectWhenBlockedFull::QUERY_STRING_PARAM_NAME])) {
             }
 
             if ($_GET[RedirectWhenBlockedFull::QUERY_STRING_PARAM_NAME] ==
+                 Conf::OUTPUT_TYPE_APP_URLS) {
+                header('Content-Type: application/javascript');
+                $urls = array();
+                foreach (RedirectWhenBlockedFull::getAltBaseUrls() as $url) {
+                    $url .= '?' .
+                         RedirectWhenBlockedFull::QUERY_STRING_PARAM_NAME . '=' .
+                         Conf::OUTPUT_TYPE_APP;
+                    $urls[] = $url;
+                }
+                print json_encode($urls);
+                exit();
+            }
+
+            if ($_GET[RedirectWhenBlockedFull::QUERY_STRING_PARAM_NAME] ==
                  Conf::OUTPUT_TYPE_STATUS) {
                 header('Cache-Control: max-age=0');
                 header('Content-Type: text/plain');
@@ -85,6 +99,20 @@ if (isset($_GET[RedirectWhenBlockedFull::QUERY_STRING_PARAM_NAME])) {
 
                 exit();
             }
+        }
+    }
+
+    if (Conf::$apk_url) {
+        if ($_GET[RedirectWhenBlockedFull::QUERY_STRING_PARAM_NAME] ==
+             Conf::OUTPUT_TYPE_APP) {
+            require 'app.php';
+            exit();
+        }
+
+        if ($_GET[RedirectWhenBlockedFull::QUERY_STRING_PARAM_NAME] ==
+             Conf::OUTPUT_TYPE_APP_QR) {
+            require 'app-qr.php';
+            exit();
         }
     }
 }

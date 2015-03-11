@@ -24,7 +24,10 @@ class RedirectWhenBlockedFull
     public static $translatable_text = array(
         'loading' => 'Loading...',
         'if_website_fails' => 'If the website fails to load, you may be able to find another
-      mirror URL here:'
+      mirror URL here:',
+        'if_website_fails_top' => 'If the website fails to load, you may be able to find another
+      mirror URL on {{alt_url_collection_links}}.',
+        'or' => 'or'
     );
 
     private static $alt_base_urls = array(), $alt_url_collections = array();
@@ -37,14 +40,17 @@ class RedirectWhenBlockedFull
 
     // Shown on the cached page while the content is loading.
     private static $html_body_appendix = '';
+
     private static $website_title;
 
-    public static function addAltBaseUrl($alt_base_url) {
+    public static function addAltBaseUrl($alt_base_url)
+    {
         self::$alt_base_urls[] = $alt_base_url;
     }
 
-    public static function addAltBaseUrls($alt_base_urls) {
-        foreach($alt_base_urls as $alt_base_url) {
+    public static function addAltBaseUrls($alt_base_urls)
+    {
+        foreach ($alt_base_urls as $alt_base_url) {
             self::addAltBaseUrl($alt_base_url);
         }
     }
@@ -54,8 +60,9 @@ class RedirectWhenBlockedFull
         self::$alt_url_collections[] = $alt_url_collection;
     }
 
-    public static function addAltUrlCollections($alt_url_collections) {
-        foreach($alt_url_collections as $alt_url_collection) {
+    public static function addAltUrlCollections($alt_url_collections)
+    {
+        foreach ($alt_url_collections as $alt_url_collection) {
             self::addAltUrlCollection($alt_url_collection);
         }
     }
@@ -324,4 +331,27 @@ class RedirectWhenBlockedFull
         // callback argument missing or not valid. fallback to default one.
         return self::JSONP_CALLBACK_BASENAME . '1';
     }
+
+    private static function getText($key) {
+        if(!isset(self::$translatable_text[$key])) {
+            return '';
+        }
+
+        $text = self::$translatable_text[$key];
+
+        // Magic replacements.
+        if(strpos($text, '{{alt_url_collection_links}}') !== false) {
+            $alt_url_collection_links = array();
+            foreach(self::$alt_url_collections as $url) {
+                $domain = parse_url($url, PHP_URL_HOST);
+                list($domain_without_tld) = explode('.', $domain, 2);
+                $alt_url_collection_links[] = '<a href="' . $url . '" target="_blank">' . $domain_without_tld . '</a>';
+            }
+            $alt_url_collection_links_str = implode(' ' . self::$translatable_text['or'] . ' ', $alt_url_collection_links);
+            $text = str_replace('{{alt_url_collection_links}}', $alt_url_collection_links_str, $text);
+        }
+
+        return $text;
+    }
 }
+

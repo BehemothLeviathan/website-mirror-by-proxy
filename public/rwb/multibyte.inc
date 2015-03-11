@@ -21,6 +21,10 @@ function mb_convert_encoding_plus($str, $to_encoding, $from_encoding)
 		$converted = iconv($from_encoding, $to_encoding . '//IGNORE', $str);
 	}
 	
+	if(!$converted) {
+	    trigger_error("Failed to convert from $from_encoding to $to_encoding");
+	}
+	
 	return $converted;
 }
 
