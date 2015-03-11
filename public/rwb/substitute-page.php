@@ -16,6 +16,14 @@
       #rwbTip_JUST_MAGIC_BIT p {
         text-align: center;
       }
+      #rwbTip_JUST_MAGIC_BIT .loading {
+        margin:12px auto;
+        text-align:center;
+      }
+      #rwbTip_JUST_MAGIC_BIT .loading img {
+        width:64px;
+        height:64px;
+      }
       #rwbTip_JUST_MAGIC_BIT ul {
         border: thin solid #ddd;
         margin: auto;
@@ -34,6 +42,9 @@
         padding: 5px;
         text-align: center;
         background:white;
+      }
+      #rwbTip_JUST_MAGIC_BIT.top .loading  {
+        display:none;
       }
       #rwbTip_JUST_MAGIC_BIT.top div * {
         display:inline;
@@ -64,6 +75,7 @@
         <?php } ?>
       </ul>
       <?php } ?>
+      <p class="loading"><img src="<?php print $rwb_path_relative_to_request_path ?>/spinner.gif" alt="Page Loading" /></p>
     </div>
   </div>
   <script>
