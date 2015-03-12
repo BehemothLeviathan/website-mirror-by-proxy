@@ -31,7 +31,7 @@ class ProxyHttpRequest extends http\Client\Request
         }
 
         $this->setOptions(
-            [                
+            [
                 'connecttimeout' => Conf::$proxy_http_request_connecttimeout,
                 'dns_cache_timeout' => Conf::$proxy_http_request_dns_cache_timeout,
                 'retrycount' => Conf::$proxy_http_request_retrycount,
@@ -47,10 +47,10 @@ class ProxyHttpRequest extends http\Client\Request
 
         $ignored_headers = array(
 
-            // This only applies to the connection between the proxy and the user, 
+            // This only applies to the connection between the proxy and the user,
             // not the proxy and the upstream origin.
             'Accept-Encoding',
-            
+
             'Connection',
             'Content-Length',
             'Fastly-Client',
@@ -101,6 +101,22 @@ class ProxyHttpRequest extends http\Client\Request
             }
 
             $headers['X-Real-IP'] = $real_ip;
+        }
+
+        // Pass referer
+        if (isset($_SERVER['HTTP_ORIGIN'])) {
+          $referer = $_SERVER['HTTP_ORIGIN'];
+        }
+        if (isset($_SERVER['HTTP_REFERER'])) {
+          $referer = $_SERVER['HTTP_REFERER'];
+        }
+        $alt_base_urls=array_map(function ($url) {
+          return substr($url,0,-1);
+        },RedirectWhenBlockedFull::$alt_base_urls);
+
+        if (isset($referer)) {
+          $referer=str_replace($alt_base_urls,Conf::$default_upstream_base_url,$referer);
+          $headers['Referer']=$referer;
         }
 
         return $headers;
