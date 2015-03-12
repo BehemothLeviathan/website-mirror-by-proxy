@@ -9,10 +9,6 @@
 <body>
   <div id="rwbTip_JUST_MAGIC_BIT">
     <style>
-      #rwbTip_JUST_MAGIC_BIT div * {
-        margin:0;
-        padding:0;
-      }
       #rwbTip_JUST_MAGIC_BIT p {
         text-align: center;
       }
