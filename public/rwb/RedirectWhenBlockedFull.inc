@@ -30,7 +30,7 @@ class RedirectWhenBlockedFull
         'or' => 'or'
     );
 
-    public static $alt_base_urls = array(), $alt_url_collections = array();
+    private static $alt_base_urls = array(), $alt_url_collections = array();
 
     // Manually set charset.
     private static $charset;

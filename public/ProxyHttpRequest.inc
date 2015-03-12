@@ -112,7 +112,7 @@ class ProxyHttpRequest extends http\Client\Request
         }
         $alt_base_urls=array_map(function ($url) {
           return substr($url,0,-1);
-        },RedirectWhenBlockedFull::$alt_base_urls);
+        },RedirectWhenBlockedFull::getAltBaseUrls());
 
         if (isset($referer)) {
           $referer=str_replace($alt_base_urls,Conf::$default_upstream_base_url,$referer);
