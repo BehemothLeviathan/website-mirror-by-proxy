@@ -150,6 +150,12 @@ $response = new ProxyHttpResponse($client->getResponse(), $request);
 $body = $response->getBody();
 $headers = $response->getHeaders();
 
+if (getDownstreamOrigin()) {
+  $headers['Access-Control-Allow-Origin'] = getDownstreamOrigin();
+
+  // See http://stackoverflow.com/questions/12409600/error-request-header-field-content-type-is-not-allowed-by-access-control-allow.
+  $headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept';
+}
 
 header($response->getResponseInfo());
 foreach ($headers as $key => $values) {
