@@ -15,7 +15,10 @@ if (!G.console) {
   };
 }
 
-var env=G._RWB_ENV_,tip=document.getElementById("rwbTip_JUST_MAGIC_BIT"),
+var env=G._RWB_ENV_,
+    RWB_NAME_PREFIX="rwbTip_JUST_MAGIC_BIT",
+    tip=document.getElementById(RWB_NAME_PREFIX),
+    warningElm=document.getElementById(RWB_NAME_PREFIX+'_warning'),
     manifest=document.documentElement.getAttribute("manifest"),
     urls=env.alt_base_urls,base_url='',relative_url='';
     _plain_div=document.createElement("div");
@@ -61,7 +64,7 @@ function requestPage() {
   function onTimeout() {
     G[cb]=noop;
     warn("Page load timeout!");
-    warn("Now trying other mirrors... Please wait.");
+    warn("Trying other mirrors...Please wait...");
     testOtherMirrors();
   }
 
@@ -97,16 +100,37 @@ function chooseMirror(url,pingQueue) {
 function noAvailableMirror() {
   console.log('%cEmergency!','color:red');
   warn("No available mirror!");
-  if (env.alt_url_collections[0]) {
-    if (confirm("Try to find another mirror URL?")) {
-      location.href=env.alt_url_collections[0];
+  warn("Redirecting to URL Collection page now...Please wait...");
+  var urls=env.alt_url_collections,url,img;
+  var urlCount=urls.length,ok=false;
+  for (var i=0;i<urls.length;i++) {
+    url=urls[i].replace(/^(https?:\/\/[^\/]+\/).*/,'$1')+'favicon.ico';
+    img=new Image;
+    img.onload=onLoad;
+    img.onerror=onError;
+    img.pageUrl=urls[i];
+    img.src=url;
+  }
+
+  function onLoad() {
+    if (ok) return;
+    ok=true;
+    location.href=this.pageUrl;
+  }
+
+  function onError() {
+    if (ok) return;
+    urlCount--;
+    if (urlCount<=0) {
+      warn("No available URL Collection page!");
     }
   }
 }
 
 function warn(msg) {
-  tip.innerHTML+='<div style="font-weight:bold;color:red;text-align:center;padding:1em;">'+encodeHTML(msg)+'</div>';
+  warningElm.innerHTML+='<br />'+encodeHTML(msg).replace(/\n/g,'<br />');
 }
+
 
 
 function request(url,succ,fail) {
@@ -137,6 +161,8 @@ function request(url,succ,fail) {
 }
 
 function testOtherMirrors() {
+  warn("Page load timeout!");
+  warn("Trying other mirrors...Please wait...");
   if (!urls.length) return noAvailableMirror();
   var count=urls.length;
   var pingQueue=urls.map(function (url) {

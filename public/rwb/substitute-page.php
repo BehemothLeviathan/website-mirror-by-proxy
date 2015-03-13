@@ -12,9 +12,16 @@
       #rwbTip_JUST_MAGIC_BIT p {
         text-align: center;
       }
+      #rwbTip_JUST_MAGIC_BIT p.warning  {
+        font-weight:bold;
+        color:red;
+        text-align:center;
+        line-height:200%;
+      }
       #rwbTip_JUST_MAGIC_BIT .loading {
         margin:12px auto;
         text-align:center;
+
       }
       #rwbTip_JUST_MAGIC_BIT .loading img {
         width:64px;
@@ -28,6 +35,7 @@
       }
       #rwbTip_JUST_MAGIC_BIT li {
         margin-left: 50px;
+        line-height:140%;
       }
       #rwbTip_JUST_MAGIC_BIT h1 {
         color: #aaa;
@@ -39,9 +47,11 @@
         text-align: center;
         background:white;
       }
-      #rwbTip_JUST_MAGIC_BIT.top .loading  {
+      #rwbTip_JUST_MAGIC_BIT.top .loading,
+      #rwbTip_JUST_MAGIC_BIT.top p.warning  {
         display:none;
       }
+
       #rwbTip_JUST_MAGIC_BIT.top div * {
         display:inline;
         font-size:12px;
@@ -71,7 +81,9 @@
         <?php } ?>
       </ul>
       <?php } ?>
+      <p class="warning" id="rwbTip_JUST_MAGIC_BIT_warning"></p>
       <p class="loading"><img src="<?php print $rwb_path_relative_to_request_path ?>/spinner.gif" alt="Page Loading" /></p>
+
     </div>
   </div>
   <script>
