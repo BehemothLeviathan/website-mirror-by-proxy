@@ -103,26 +103,28 @@ class ProxyHttpRequest extends http\Client\Request
             $headers['X-Real-IP'] = $real_ip;
         }
 
-        // Pass referer manually
-        if (isset($_SERVER['HTTP_ORIGIN'])) {
-          $referer = $_SERVER['HTTP_ORIGIN'];
-        }
-        if (isset($_SERVER['HTTP_REFERER'])) {
-          $referer = $_SERVER['HTTP_REFERER'];
-        }
-
-        if (isset($referer)) {
-          $alt_base_urls=array_map(function ($url) {
-            return substr($url,0,-1);
-          },RedirectWhenBlockedFull::getAltBaseUrls());
-          $referer=str_replace($alt_base_urls,Conf::$default_upstream_base_url,$referer);
-          $headers['Referer']=$referer;
-        } else {
+        /*
+        if (!isset($headers['Referer'])) {// Pass referer manually
           // Sometimes the referer is missing in getallheaders and $_SERVER in AMZ when using Firefox
-          // CloudFront doesn't forward referer header,it only forward Origin header.
+          // CloudFront sometimes doesn't forward referer header,it only forward Origin header.
           // Firefox only send Referer header,Chrome send both Referer and Origin header.
-          $headers['Referer']=Conf::$default_upstream_base_url;
-        }
+          if (isset($_SERVER['HTTP_ORIGIN'])) {
+            $referer = $_SERVER['HTTP_ORIGIN'];
+          }
+          if (isset($_SERVER['HTTP_REFERER'])) {
+            $referer = $_SERVER['HTTP_REFERER'];
+          }
+
+          if (isset($referer)) {
+            $alt_base_urls=array_map(function ($url) {
+              return substr($url,0,-1);
+            },RedirectWhenBlockedFull::getAltBaseUrls());
+            $referer=str_replace($alt_base_urls,Conf::$default_upstream_base_url,$referer);
+            $headers['Referer']=$referer;
+          } else {
+            $headers['Referer']=Conf::$default_upstream_base_url;
+          }
+        }*/
 
         return $headers;
     }
