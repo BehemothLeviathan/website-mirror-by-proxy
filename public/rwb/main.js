@@ -51,6 +51,7 @@ function requestPage() {
       document.open();
       document.charset=env.upstream_charset; // only for IE8
       document.write(html);
+      document.close();
     },0);
   };
 
