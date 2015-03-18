@@ -27,10 +27,6 @@ class ProxyHttpResponse
 
         $this->response = $response;
         $this->request = $request;
-
-        if (isset($this->headers['X-Original-Content-Encoding']) && $this->headers['X-Original-Content-Encoding']=='gzip') {
-          $this->body=gzdecode($this->body);
-        }
     }
 
     public function getBody()

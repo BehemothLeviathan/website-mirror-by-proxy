@@ -142,6 +142,7 @@ $client->setOptions(
         'connecttimeout' => Conf::$proxy_http_request_connecttimeout,
         'dns_cache_timeout' => Conf::$proxy_http_request_dns_cache_timeout,
         'retrycount' => Conf::$proxy_http_request_retrycount,
+        'compress' => true,
         'timeout' => Conf::$proxy_http_request_timeout
     ]);
 $client->enqueue($request)->send();
