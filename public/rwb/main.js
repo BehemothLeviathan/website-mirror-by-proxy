@@ -3,7 +3,6 @@ if (top!=self) {
   top.location=self.location;
   return;
 }
-
 var DEFAULT_TIMEOUT=30000; // default timeout is 30000ms,viz. 30s
 
 if (!G.console) {
@@ -47,7 +46,9 @@ function requestPage() {
     script.parentNode.removeChild(script);
     setTimeout(function () { // IE8 need to take a breath
       var html=result.html;
-      html=html.replace(/(<body[^>]*>)/i,"$1"+tip.outerHTML.replace(/^\s*<div/i,'<div class="top"'));
+      if (env.show_top_tip_message) {
+        html=html.replace(/(<body[^>]*>)/i,"$1"+tip.outerHTML.replace(/^\s*<div/i,'<div class="top"'));
+      }
       document.open();
       document.charset=env.upstream_charset; // only for IE8
       document.write(html);

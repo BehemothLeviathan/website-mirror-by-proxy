@@ -203,10 +203,9 @@ class RedirectWhenBlockedFull
                     break;
                 }
             }
-
             // For even more invalid HTML (no head tag, no body tag), just append base tag to start of doc.
-            if (! $base_tag_injected) {
-                $html = $base_tag . "\n" . $html;
+            if (! $base_tag_injected && preg_match('|<html\b|i',$html)) {
+                $html = preg_replace('|(<html\b[^>]*>)|i', "$1\n".$base_tag . "\n" , $html);
             }
         }
     }
@@ -239,6 +238,7 @@ class RedirectWhenBlockedFull
             $env=array(
               'text'=> self::$translatable_text,
               'title'=> self::$website_title,
+              'show_top_tip_message' => Conf::$show_top_tip_message,
               'rwb_hash'=> rwb_appcache_get_hash(),
               'alt_url_collections'=> self::$alt_url_collections,
               'alt_base_urls'=> self::$alt_base_urls,

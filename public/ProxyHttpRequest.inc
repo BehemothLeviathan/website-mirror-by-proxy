@@ -24,7 +24,9 @@ class ProxyHttpRequest extends http\Client\Request
 
                 $this->getBody()->addForm($_POST);
             } else {
-                $this->getBody()->append(new http\QueryString($post_data));
+                $entityBody = file_get_contents('php://input');
+                $this->getBody()->append($entityBody);
+                //$this->getBody()->append(new http\QueryString($post_data));
             }
 
             Log::add($post_data, 'post_data');
@@ -152,9 +154,13 @@ class ProxyHttpRequest extends http\Client\Request
                 $url = RedirectWhenBlockedFull::getRequestUriWithoutQueryStringParam();
                 $this->removeThisScriptDirFromUrl($url);
 
-                if (startsWith($url, '/http://') || startsWith($url,
-                    '/https://')) {
+                if (startsWith($url, '/http:/') || startsWith($url,
+                    '/https:/')) { // sometimes browser will reduce '/http://www' to '/http:/www'
                     $url = substr($url, 1);
+                    if (!startsWith($url, 'http://') &&
+                        !startsWith($url,'https://')) {
+                      $url=preg_replace('|^(https?:/(?=[^/]))|i','$1/',$url);
+                    }
 
                     if (! TextExternalUrlFilters::matchesUrl($url)) {
                         header('HTTP/1.0 403 Forbidden');
@@ -175,8 +181,7 @@ class ProxyHttpRequest extends http\Client\Request
                     }
 
                     // Use in DomUtlFilters for relative URLs.
-                    $base_url_suffix = rtrim(http_build_scheme_host($url), '/') .
-                         '/';
+                    $base_url_suffix = rtrim(http_build_scheme_host($url), '/') . '/';
                     RedirectWhenBlockedFull::setBaseUrlSuffix($base_url_suffix);
                 } else {
 

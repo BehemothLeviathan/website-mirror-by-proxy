@@ -2,7 +2,7 @@
 
 class Conf
 {
-    
+
     // Using the same QUERY_STRING_PARAM_NAME as in RWB so make sure this value isn't used by RWB.
     const OUTPUT_TYPE_ALT_BASE_URLS = 10;
 
@@ -19,25 +19,27 @@ class Conf
     const OUTPUT_TYPE_APP = 'app';
 
     public static $alt_base_urls_key;
-    
+
     // 1 day.
     public static $alt_base_urls_modified_ago_max = 86400;
 
     public static $apk_url;
+
+    public static $show_top_tip_message=true; // if show top "If the website loads failed" message
 
     public static $china_ip_for_dns_poisoning_test;
 
     public static $cookies_enabled = false;
 
     public static $default_cache_control_max_age = 60;
-    
+
     // 1 day.
     public static $default_cache_control_stale_if_error = 86400;
 
     public static $default_cache_control_stale_while_revalidate = 600;
 
     public static $default_upstream_base_url;
-    
+
     // This should only be used if upstream server isn't configured correctly. Will override server responses.
     public static $default_upstream_charset;
 
@@ -68,7 +70,7 @@ class Conf
             $i = 0;
         }
         $i ++;
-        
+
         $name = 'wmbp' . $i;
         $ga_script = <<<EOF
 <script>
@@ -84,7 +86,7 @@ class Conf
 EOF;
         // Appends to main page / iframe container.
         RedirectWhenBlockedFull::appendToHtmlBody($ga_script);
-        
+
         // Appends to iframed content.
         self::appendToHtmlBody($ga_script);
     }

@@ -29,8 +29,7 @@ class DomUrlFilters
                 if (startsWith($attr_val, array(
                     'data:',
                     'javascript:',
-                    'mailto:',
-                    '.'
+                    'mailto:'
                 ))) {
                     continue;
                 }
@@ -64,8 +63,12 @@ class DomUrlFilters
                                      $attr_val_components['path'];
                             }
 
-                            $attr_val = '.' . http_build_path_query_fragment(
+                            $attr_val = http_build_path_query_fragment(
                                 $attr_val_components);
+                            if ($attr_val[0]=='/') {
+                              $attr_val = '.' .$attr_val;
+                            }
+
                             $element->setAttribute($attribute, $attr_val);
                         }
                     }
@@ -83,6 +86,7 @@ class DomUrlFilters
                         $element->setAttribute($attribute, $attr_val);
                     }
                 }
+
             }
         }
     }

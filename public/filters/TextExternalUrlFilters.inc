@@ -22,51 +22,51 @@ class TextExternalUrlFilters
     public static function applyAll(&$body, $content_type = NULL)
     {
         foreach (self::getHostsFiltered() as $host) {
-            
+
             $searches = array();
-            
+
             // Convert protocol relative URLs to HTTPS.
             $searches['"//' . $host] = '"https://' . $host;
             $searches['\'//' . $host] = '\'https://' . $host;
-            
+
             $urls = array();
             $urls[] = 'http://' . $host;
             $urls[] = 'https://' . $host;
-            
+
             foreach ($urls as $url) {
                 $searches[$url] = RedirectWhenBlockedFull::getBaseUrl() . $url;
             }
-            
+
             // Because slashes are escaped in JSON, escape all search/replace patterns too.
             // JSON-type data may be embedded in JavaScript and HTML as well.
-            if (in_array($content_type, 
+            if (in_array($content_type,
                 array(
                     ProxyHttpResponse::CONTENT_TYPE_JAVASCRIPT,
                     ProxyHttpResponse::CONTENT_TYPE_JSON,
                     ProxyHttpResponse::CONTENT_TYPE_TEXT_HTML
                 ))) {
-                
+
                 $searches2 = array();
-                
+
                 foreach ($searches as $search => $replace) {
                     $search = str_replace('/', '\/', $search);
                     $replace = str_replace('/', '\/', $replace);
                     $searches2[$search] = $replace;
                 }
-                
+
                 // For pure JSON content, use these searches only.
                 if ($content_type == ProxyHttpResponse::CONTENT_TYPE_JSON) {
                     $searches = $searches2;
-                }                 
+                }
 
                 // Otherwise append.
                 else {
                     $searches += $searches2;
                 }
             }
-            
+
             // Special for javascript (and HTML since it could be in a script tag).
-            if (in_array($content_type, 
+            if (in_array($content_type,
                 array(
                     ProxyHttpResponse::CONTENT_TYPE_JAVASCRIPT,
                     ProxyHttpResponse::CONTENT_TYPE_TEXT_HTML
@@ -85,7 +85,7 @@ class TextExternalUrlFilters
                          self::getBaseUrlHostAndPath() . $prefix . $quote;
                 }
             }
-            
+
             foreach ($searches as $search => $replace) {
                 $body = str_ireplace($search, $replace, $body);
             }
@@ -95,7 +95,7 @@ class TextExternalUrlFilters
     public static function applyReverse(&$body)
     {
         foreach (RedirectWhenBlockedFull::getAltBaseUrls() as $alt_base_url) {
-            
+
             $searches = array(
                 $alt_base_url . 'http://' => 'http://',
                 $alt_base_url . 'https://' => 'https://',
@@ -103,7 +103,7 @@ class TextExternalUrlFilters
                     'scheme') . '://' .
                      Conf::getDefaultUpstreamBaseUrlComponent('host') . '/'
             );
-            
+
             // Add url-encoded versions.
             foreach ($searches as $search => $replace) {
                 $search = urlencode($search);
@@ -111,17 +111,17 @@ class TextExternalUrlFilters
                     $searches[$search] = urlencode($replace);
                 }
             }
-            
+
             // Special case when only first colon is encoded.
             // Should be moved to site-specific config.
             foreach ($searches as $search => $replace) {
                 $search = str_replace('://', urlencode(':') . '//', $search);
                 if (! isset($searches[$search])) {
-                    $searches[$search] = str_replace('://', 
+                    $searches[$search] = str_replace('://',
                         urlencode(':') . '//', $replace);
                 }
             }
-            
+
             foreach ($searches as $search => $replace) {
                 $body = str_replace($search, $replace, $body);
             }
@@ -143,7 +143,7 @@ class TextExternalUrlFilters
             $base_url_components = parse_url(
                 RedirectWhenBlockedFull::getBaseUrl());
             $host_and_path = $base_url_components['host'];
-            if (isset($base_url_components['path'])) {
+            if (isset($base_url_components['path']) && $base_url_components['path']!='/') {
                 $host_and_path .= $base_url_components['path'];
             }
         }
