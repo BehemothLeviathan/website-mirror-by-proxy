@@ -36,7 +36,7 @@ function startsWith(s,prefix){
 }
 
 function requestPage() {
-  var cb=env.jsonp_callback_basename+(+new Date);
+  var cb=env.jsonp_callback_basename+((+new Date)/1e8|0); // random name would prevent cache
   var src=env.request_src+'&callback='+cb;
   var script=document.createElement('script');
   var tid=setTimeout(onTimeout,DEFAULT_TIMEOUT);
