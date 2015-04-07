@@ -2,16 +2,15 @@
 
 class AltBaseUrlsTest extends StatusTest
 {
-
     function run()
     {
         if (count(RedirectWhenBlockedFull::getAltBaseUrls()) == 0) {
             $this->messages[] = 'Empty alt base urls';
             return;
         }
-        
+
         $domains = array();
-        
+
         foreach (RedirectWhenBlockedFull::getAltBaseUrls() as $url) {
             // Test HTTP response code.
             $ch = curl_init($url);
@@ -26,49 +25,35 @@ class AltBaseUrlsTest extends StatusTest
                 $this->n_failed ++;
                 $this->messages[] = "$url failed ($http_status)";
             }
-            
+
             // Test DNS poisoning.
             $domain = parse_url($url, PHP_URL_HOST);
             $domains[] = $domain;
         }
-        
-        if (! Conf::$china_ip_for_dns_poisoning_test) {
-            $this->messages[] = 'china_ip_for_dns_poisoning_test not set';
+
+
+        if (! Conf::$dns_poisoning_test_api) {
+            $this->messages[] = 'dns_poisoning_test_api not set';
             $this->n_failed ++;
         } else {
-            $command = '';
-            foreach ($domains as $domain) {
-                $command .= '(dig +time=5 +tries=1 @' .
-                     Conf::$china_ip_for_dns_poisoning_test . ' ' . $domain .
-                     ' > /dev/null ; echo "' . $domain . ':"$?)  & ';
-            }
-            $command = trim($command) . '& wait';
-            exec($command, $output);
+            $api = new DNSTestAPI(Conf::$dns_poisoning_test_api);
             $n_domains_not_poisoned = 0;
-            foreach ($output as $line) {
-                $line_chunks = explode(':', $line, 2);
-                if (count($line_chunks) == 2 && $line_chunks[0] &&
-                     $line_chunks[1] >= 0) {
-                    list ($domain, $dig_exit_code) = $line_chunks;
-                    if ($dig_exit_code == 0) {
-                        $this->messages[] = $domain . ' is poisoned (' .
-                             $dig_exit_code . ')';
-                    } else {
-                        $this->messages[] = $domain . ' is not poisoned (' .
-                             $dig_exit_code . ')';
-                        $n_domains_not_poisoned++;
-                    }
+            foreach ($domains as $domain) {
+                $ret = $api->isDomainCensored($domain);
+                if ($ret) {
+                  $this->messages[] = $domain . ' is poisoned';
                 } else {
-                    $this->messages[] = 'unknown dig result (' . $line . ')';
+                  $this->messages[] = $domain . ' is not poisoned';
+                  $n_domains_not_poisoned++;
                 }
             }
-            
+
             if(!$n_domains_not_poisoned) {
                 $this->messages[] = 'no unpoisoned domains available';
                 $this->n_failed ++;
             }
         }
-        
+
         $alt_base_urls_file = dirname(dirname(__DIR__)) .
              '/rwb/conf/alt_base_urls.txt';
         $alt_base_urls_modified_ago = time() - filemtime($alt_base_urls_file);
@@ -77,7 +62,62 @@ class AltBaseUrlsTest extends StatusTest
             $this->messages[] = "$alt_base_urls_file expired";
             return false;
         }
-        
         return true;
     }
 }
+
+
+class DNSTestAPI {
+  /**
+  dns_poisoning_test_api example
+  $api = "https://127.0.0.1/api";
+  "$api/submit_domain?domain=twitter.com";
+  Return:
+    {"result": "success", "detection_id": 37}
+
+  "$api/fetch_detection_result?id=12";
+  Return:
+    {
+      "detection_result": "not_censored",
+      "detection_finishes": "Tue Apr  7 09:26:45 2015",
+      "domain_name": "twitter.com",
+      "detection_starts": "Tue Apr  7 09:26:43 2015",
+      "result": "success",
+      "detection_method": 0
+    }
+  */
+  private $api;
+  public function __construct($api) {
+    $this->api=$api;
+  }
+  public function isDomainCensored($domain) {
+    $ret = $this->submitDomain($domain);
+    $ret = $this->fetchResult($ret->detection_id);
+    return $ret->detection_result == "censored";
+  }
+
+  private function submitDomain($domain) {
+    $ret = file_get_contents($this->api."submit_domain?domain=$domain");
+    return json_decode($ret);
+  }
+  private function fetchResult($id) {
+    $ret = file_get_contents($this->api."fetch_detection_result?id=$id");
+    return json_decode($ret);
+  }
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -27,7 +27,8 @@ class Conf
 
     public static $show_top_tip_message=true; // if show top "If the website loads failed" message
 
-    public static $china_ip_for_dns_poisoning_test;
+    // https://127.0.0.1:8907/api/
+    public static $dns_poisoning_test_api;
 
     public static $cookies_enabled = false;
 
