@@ -97,12 +97,21 @@ class DNSTestAPI {
   }
 
   private function submitDomain($domain) {
-    $ret = file_get_contents($this->api."submit_domain?domain=$domain");
-    return json_decode($ret);
+    return $this->request($this->api."submit_domain?domain=$domain");
   }
   private function fetchResult($id) {
-    $ret = file_get_contents($this->api."fetch_detection_result?id=$id");
-    return json_decode($ret);
+    return $this->request($this->api."fetch_detection_result?id=$id");
+  }
+
+  private function request($url) {
+    while (true) {
+      $ret = file_get_contents($url);
+      $ret = @json_decode($ret);
+      if ($ret && isset($ret->result) && $ret->result=='success') {
+        return $ret;
+      }
+      sleep(1);
+    }
   }
 
 
