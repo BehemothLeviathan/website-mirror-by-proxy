@@ -14,6 +14,14 @@ if (!G.console) {
   };
 }
 
+var LS=G.localStorage;
+if (!LS) {
+  LS={
+    getItem:noop,setItem:noop,
+    removeItem:noop,clear:noop
+  };
+}
+
 var env=G._RWB_ENV_,
     RWB_NAME_PREFIX="rwbTip_JUST_MAGIC_BIT",
     tip=document.getElementById(RWB_NAME_PREFIX),
@@ -21,8 +29,6 @@ var env=G._RWB_ENV_,
     manifest=document.documentElement.getAttribute("manifest"),
     urls=env.alt_base_urls,base_url='',relative_url='';
     _plain_div=document.createElement("div");
-
-console.log("Checker Working!");
 
 function encodeHTML(text) {
   var t=document.createTextNode(text);
@@ -91,11 +97,8 @@ function requestPage() {
   */
 }
 
-function chooseMirror(url,pingQueue) {
+function chooseMirror(url) {
   chooseMirror=noop;
-  pingQueue.forEach(function (xhr) { // only choose the fastest mirror
-    xhr.abort();
-  });
   location.replace(url + relative_url);
 }
 
@@ -168,7 +171,12 @@ function testOtherMirrors() {
   if (!urls.length) return noAvailableMirror();
   var count=urls.length;
   var pingQueue=urls.map(function (url) {
-    return request(url+manifest,function () {chooseMirror(url,pingQueue)},function () {
+    return checkBlocked(url,function () {
+      pingQueue.forEach(function (xhr) { // only choose the fastest mirror
+        xhr && xhr.abort();
+      });
+      chooseMirror(url);
+    },function () {
       console.log("Fail:"+url);
       count--;
       if (!count) noAvailableMirror();
@@ -177,22 +185,41 @@ function testOtherMirrors() {
 }
 
 
+function checkBlocked(baseUrl,succ,onBlocked) {
+  var item = LS.getItem(baseUrl);
+  if (item==='blocked') return onBlocked();
+  return request(baseUrl+manifest+"?nocache"+(+new Date),succ,function () {
+    LS.setItem(baseUrl,'blocked');
+    onBlocked();
+  });
+}
+
+
 function noop() {}
 
-
-
-for (var i=0;i<urls.length;i++) {
-  if (startsWith(location.href,urls[i])) {
-    base_url=urls[i];
-    relative_url=location.href.substring(base_url.length);
-    urls.splice(i,1); // remove current mirror
-    break;
+function main() {
+  for (var i=0;i<urls.length;i++) {
+    if (startsWith(location.href,urls[i])) {
+      base_url=urls[i];
+      relative_url=location.href.substring(base_url.length);
+      urls.splice(i,1); // remove current mirror
+      break;
+    }
+  }
+  if (!window.applicationCache) requestPage();
+  else {
+    console.log("Checker Working!");
+    // If current mirror available,no need to test other mirror
+    // that may cause infinite redirect loop when mirror speed unstable
+    checkBlocked(base_url,requestPage,testOtherMirrors);
   }
 }
 
-// If current mirror available,no need to test other mirror
-// that may cause infinite redirect loop when mirror speed unstable
-request(base_url+manifest+"?nocache"+(+new Date),requestPage,testOtherMirrors);
+
+main();
+
+
+
 
 
 
