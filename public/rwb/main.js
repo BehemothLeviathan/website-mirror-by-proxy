@@ -1,8 +1,9 @@
 (function (G) {
-if (top!=self) {
+/*if (top!=self) {
   top.location=self.location;
   return;
-}
+}*/
+
 var DEFAULT_TIMEOUT=30000; // default timeout is 30000ms,viz. 30s
 
 if (!G.console) {
@@ -186,10 +187,12 @@ function testOtherMirrors() {
 
 
 function checkBlocked(baseUrl,succ,onBlocked) {
-  var item = LS.getItem(baseUrl);
+  var d =new Date();
+  var cachePrefix = d.getMonth()+'-'+d.getDate()+':';
+  var item = LS.getItem(cachePrefix+baseUrl);
   if (item==='blocked') return onBlocked();
   return request(baseUrl+manifest+"?nocache"+(+new Date),succ,function () {
-    LS.setItem(baseUrl,'blocked');
+    LS.setItem(cachePrefix+baseUrl,'blocked');
     onBlocked();
   });
 }
@@ -215,8 +218,11 @@ function main() {
   }
 }
 
-
-main();
+if (document.readyState==='complete') {
+  main();
+} else {
+  window.onload = main;
+}
 
 
 
