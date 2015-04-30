@@ -209,7 +209,7 @@ function main() {
       break;
     }
   }
-  if (!window.applicationCache) requestPage();
+  if (!window.applicationCache || !manifest) requestPage();
   else {
     console.log("Checker Working!");
     // If current mirror available,no need to test other mirror
