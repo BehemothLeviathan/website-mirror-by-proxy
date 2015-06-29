@@ -11,8 +11,9 @@ Conf::$default_upstream_base_url = '';
 // Third party hosts which should also be proxied (eg example.com).
 TextExternalUrlFilters::addHosts(
   array(
-
-  ));
+      'v3.jiathis.com'  #  enable jiathis share button
+    )
+);
 
 // To get javascript to work you may have to manually rewrite some text.
 //TextInternalUrlFilters::addSearch('search', 'replace');
